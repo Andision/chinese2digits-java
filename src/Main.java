@@ -385,6 +385,74 @@ public class Main {
         return traditionalTextConvertFunc(chString,true);
     }
 
+    public static String standardChNumberConvert(String chNumberString) {
+        List<String> chNumberStringList = new ArrayList<String>();
+        for (char c : chNumberString.toCharArray()) {
+            chNumberStringList.add(String.valueOf(c));
+        }
+
+        //大于2的长度字符串才有检测和补位的必要
+        if (chNumberStringList.size() > 2) {
+            //十位补一：
+            int tenNumberIndex = chNumberStringList.indexOf("十");
+            if (tenNumberIndex == 0) {
+                chNumberStringList.add(tenNumberIndex, "一");
+            } else if(tenNumberIndex!=-1) {
+                // 如果没有左边计数数字 插入1
+                if (!CHINESE_PURE_NUMBER_LIST.contains(chNumberStringList.get(tenNumberIndex - 1))) {
+                    chNumberStringList.add(tenNumberIndex, "一");
+                }
+            }
+
+            //差位补零
+            //逻辑 如果最后一个单位 不是十结尾 而是百以上 则数字后面补一个比最后一个出现的单位小一级的单位
+            //从倒数第二位开始看,且必须是倒数第二位就是单位的才符合条件
+
+            int lastCountingUnit = CHINESE_PURE_COUNTING_UNIT_LIST.indexOf(chNumberStringList.get(chNumberStringList.size() - 2));
+            // 如果最末位的是百开头
+            if (lastCountingUnit >= 1) {
+                // 则字符串最后拼接一个比最后一个单位小一位的单位 例如四万三 变成四万三千
+
+                // 如果最后一位结束的是亿 则补千万
+                if (lastCountingUnit == 4) {
+                    chNumberStringList.add("千");
+                    chNumberStringList.add("万");
+                } else {
+                    chNumberStringList.add(CHINESE_PURE_COUNTING_UNIT_LIST.get(lastCountingUnit - 1));
+                }
+            }
+
+        }
+        //检查是否是 万三  千四点五这种表述 百三百四
+        int perCountSwitch = 0;
+        if (chNumberStringList.size() > 1) {
+            if (chNumberStringList.get(0).equals("千")  || chNumberStringList.get(0) .equals("万")  || chNumberStringList.get(0) .equals("百") ) {
+                for (int i = 1; i < chNumberStringList.size(); i++) {
+                    //其余位数都是纯数字 才能执行
+                    if (CHINESE_PURE_NUMBER_LIST.contains(chNumberStringList.get(i))) {
+                        perCountSwitch = 1;
+                    } else {
+                        perCountSwitch = 0;
+                        //y有一个不是数字 直接退出循环
+                        break;
+                    }
+                }
+            }
+        }
+        if (perCountSwitch == 1) {
+            chNumberStringList.add(1, "分");
+            chNumberStringList.add(2, "之");
+        }
+
+        String ret = "";
+        for(String s:chNumberStringList){
+            ret+=s;
+        }
+
+        return ret;
+    }
+
+
 
 
 
@@ -394,7 +462,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(traditionalTextConvertFunc("叁万柒仟元整")));
+        System.out.printf(String.valueOf(standardChNumberConvert("三点一千万")));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
