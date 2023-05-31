@@ -10,7 +10,7 @@ public class Main {
     private static String [] CHINESE_CONNECTING_SIGN_LIST = new String[]  {".","点","·"};
     private static String [] CHINESE_PER_COUNTING_STRING_LIST = new String[]  {"百分之","千分之","万分之"};
     private static String CHINESE_PER_COUNTING_SEG = "分之";
-    private static String [] CHINESE_PURE_NUMBER_LIST = new String[]  {"幺", "一", "二", "两", "三", "四", "五", "六", "七", "八", "九", "十","零"};
+    private static List<String> CHINESE_PURE_NUMBER_LIST = Arrays.asList("幺", "一", "二", "两", "三", "四", "五", "六", "七", "八", "九", "十","零");
 
     private static Map<String,String>CHINESE_SIGN_DICT = new HashMap<String, String>(){{
         put("负","-");
@@ -317,7 +317,73 @@ public class Main {
         return false;
     }
 
-    
+    private static String traditionalTextConvertFunc(String chString, boolean traditionalConvertSwitch) {
+        List<String> chStringList = new ArrayList<String>();
+        for (char c : chString.toCharArray()) {
+            chStringList.add(String.valueOf(c));
+        }
+        int stringLength = chStringList.size();
+
+        if (traditionalConvertSwitch == true) {
+
+            for (int i = 0; i < stringLength; i++) {
+                // 繁体中文数字转简体中文数字
+                if (TRADITIONAL_CONVERT_DICT.get(chStringList.get(i)) != null) {
+                    chStringList.set(i, TRADITIONAL_CONVERT_DICT.get(chStringList.get(i)));
+                }
+            }
+        }
+        if (stringLength > 1) {
+            // 检查繁体单体转换
+            for (int i = 0; i < stringLength; i++) {
+                // 如果 前后有 pure 汉字数字 则转换单位为简体
+                if (SPECIAL_TRADITIONAL_COUNTING_UNIT_CHAR_DICT.get(chStringList.get(i)) != null) {
+                    // 如果前后有单纯的数字 则进行单位转换
+                    if (i == 0) {
+                        if (CHINESE_PURE_NUMBER_LIST.contains(chStringList.get(i + 1))) {
+                            chStringList.set(i, SPECIAL_TRADITIONAL_COUNTING_UNIT_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    } else if (i == stringLength - 1) {
+                        if (CHINESE_PURE_NUMBER_LIST.contains(chStringList.get(i - 1))) {
+                            chStringList.set(i, SPECIAL_TRADITIONAL_COUNTING_UNIT_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    } else {
+                        if (CHINESE_PURE_NUMBER_LIST.contains(chStringList.get(i - 1)) || CHINESE_PURE_NUMBER_LIST.contains(chStringList.get(i + 1))) {
+                            chStringList.set(i, SPECIAL_TRADITIONAL_COUNTING_UNIT_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    }
+                }
+                // 特殊变换 俩变二
+                if (SPECIAL_NUMBER_CHAR_DICT.get(chStringList.get(i)) != null) {
+                    // 如果前后有单位 则进行转换
+                    if (i == 0) {
+                        if (CHINESE_PURE_COUNTING_UNIT_LIST.contains(chStringList.get(i + 1))) {
+                            chStringList.set(i, SPECIAL_NUMBER_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    } else if (i == stringLength - 1) {
+                        if (CHINESE_PURE_COUNTING_UNIT_LIST.contains(chStringList.get(i - 1))) {
+                            chStringList.set(i, SPECIAL_NUMBER_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    } else {
+                        if (CHINESE_PURE_COUNTING_UNIT_LIST.contains(chStringList.get(i - 1)) || CHINESE_PURE_COUNTING_UNIT_LIST.contains(chStringList.get(i + 1))) {
+                            chStringList.set(i, SPECIAL_NUMBER_CHAR_DICT.get(chStringList.get(i)));
+                        }
+                    }
+                }
+            }
+        }
+
+        String ret = "";
+        for(String s:chStringList){
+            ret += s;
+        }
+        return ret;
+
+    }
+
+    private static String traditionalTextConvertFunc(String chString){
+        return traditionalTextConvertFunc(chString,true);
+    }
 
 
 
@@ -328,7 +394,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(chineseToDigitsHighTolerance("百分之负六十五点二八"));
+        System.out.printf(String.valueOf(traditionalTextConvertFunc("叁万柒仟元整")));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
