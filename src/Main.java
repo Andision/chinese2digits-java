@@ -1,3 +1,4 @@
+import java.math.BigDecimal;
 import java.util.*;
 
 // Press Shift twice to open the Search Everywhere dialog and type `show whitespaces`,
@@ -39,7 +40,8 @@ public class Main {
         put("亿",100000000);
     }};
 
-private static String [] CHINESE_PURE_COUNTING_UNIT_LIST = new String[]  {"十","百","千","万","亿"};
+//private static String [] CHINESE_PURE_COUNTING_UNIT_LIST = new String[]  {"十","百","千","万","亿"};
+    private static List<String> CHINESE_PURE_COUNTING_UNIT_LIST = Arrays.asList("十","百","千","万","亿");
 
     private static Map<String,String> TRADITIONAL_CONVERT_DICT = new HashMap<String, String>(){{
         put("壹","一");
@@ -125,13 +127,14 @@ private static String [] CHINESE_PURE_COUNTING_UNIT_LIST = new String[]  {"十",
     private static int max(List<Integer> list){
         int ret = list.get(0);
         for(int i=0;i< list.size();i++){
-            if(ret>list.get(i)){
+            if(ret<list.get(i)){
                 ret=list.get(i);
             }
         }
         return ret;
     }
     private static String coreCHToDigits(String chineseChars) {
+        System.out.println("coreCHToDigits_IN"+' '+chineseChars);
         int total = 0;
         String tempVal = "";
         int countingUnit = 1;
@@ -175,24 +178,146 @@ private static String [] CHINESE_PURE_COUNTING_UNIT_LIST = new String[]  {"十",
             }
         }
 
+        String ret;
+
         if (total == 0) {
             if (countingUnit > 10) {
-                return String.valueOf(countingUnit);
+                ret = String.valueOf(countingUnit);
             } else {
                 if (!tempVal.equals("")) {
-                    return tempVal;
+                    ret = tempVal;
                 } else {
-                    return String.valueOf(total);
+                    ret = String.valueOf(total);
                 }
             }
         } else {
-            return String.valueOf(total);
+            ret = String.valueOf(total);
         }
+        System.out.println("coreCHToDigits_OUT"+' '+ret);
+        return ret;
+
     }
 
 
+    private static String chineseToDigits(String chineseDigitsMixString, boolean percentConvert, Object... args) {
+        System.out.println("chineseToDigits_IN"+' '+chineseDigitsMixString+' '+percentConvert);
+        String[] chineseCharsListByDiv = chineseDigitsMixString.split("分之");
+        List<String> convertResultList = new ArrayList<>();
+        for (int k = 0; k < chineseCharsListByDiv.length; k++) {
+            String tempChineseChars = chineseCharsListByDiv[k];
 
+            String[] chineseCharsDotSplitList = new String[0];
 
+            String sign = "";
+            for (char chars : tempChineseChars.toCharArray()) {
+                if (CHINESE_SIGN_DICT.containsKey(String.valueOf(chars))) {
+                    sign = CHINESE_SIGN_DICT.get(String.valueOf(chars));
+                    tempChineseChars = tempChineseChars.replace(String.valueOf(chars), "");
+                }
+            }
+
+            String chineseChars = tempChineseChars;
+            for (String chars : CHINESE_CONNECTING_SIGN_DICT.keySet()) {
+                if (chineseChars.contains(String.valueOf(chars))) {
+                    chineseCharsDotSplitList = chineseChars.split(String.valueOf(chars));
+                }
+            }
+
+            String convertResult;
+            if (chineseCharsDotSplitList.length == 0) {
+                convertResult = coreCHToDigits(chineseChars);
+            } else {
+                String tempCountString = "";
+                for (int ii = chineseCharsDotSplitList[chineseCharsDotSplitList.length - 1].length() - 1; ii >= 0; ii--) {
+                    if (CHINESE_PURE_COUNTING_UNIT_LIST.contains(String.valueOf(chineseCharsDotSplitList[chineseCharsDotSplitList.length - 1].charAt(ii)))) {
+                        tempCountString = chineseCharsDotSplitList[chineseCharsDotSplitList.length - 1].charAt(ii) + tempCountString;
+                    } else {
+                        chineseCharsDotSplitList[chineseCharsDotSplitList.length - 1] = chineseCharsDotSplitList[chineseCharsDotSplitList.length - 1].substring(0, ii + 1);
+                        break;
+                    }
+                }
+                BigDecimal tempCountNum;
+                if (!tempCountString.equals("")) {
+                    tempCountNum = new BigDecimal(coreCHToDigits(tempCountString));
+                } else {
+                    tempCountNum = new BigDecimal(1.0);
+                }
+                if (chineseCharsDotSplitList[0].equals("")) {
+                    convertResult = "0." + coreCHToDigits(chineseCharsDotSplitList[1]);
+                } else {
+                    convertResult = coreCHToDigits(chineseCharsDotSplitList[0]) + "." + coreCHToDigits(chineseCharsDotSplitList[1]);
+                }
+                convertResult = String.valueOf(new BigDecimal(convertResult).multiply(tempCountNum));
+            }
+
+            if (convertResult.equals("")) {
+                convertResult = "1";
+            }
+
+            convertResult = sign + convertResult;
+            convertResultList.add(convertResult);
+        }
+
+        String finalTotal;
+        if (convertResultList.size() > 1) {
+            if (percentConvert) {
+                finalTotal = String.valueOf(new BigDecimal(convertResultList.get(1)).divide(new BigDecimal(convertResultList.get(0))));
+            } else {
+                if (convertResultList.get(0).equals("100")) {
+                    finalTotal = convertResultList.get(1) + "%";
+                } else if (convertResultList.get(0).equals("1000")) {
+                    finalTotal = convertResultList.get(1) + "‰";
+                } else if (convertResultList.get(0).equals("10000")) {
+                    finalTotal = convertResultList.get(1) + "‱";
+                } else {
+                    finalTotal = convertResultList.get(1) + "/" + convertResultList.get(0);
+                }
+            }
+        } else {
+            finalTotal = convertResultList.get(0);
+        }
+
+        finalTotal = finalTotal.replaceAll("\\.?0*$", "");
+        System.out.println("chineseToDigits_OUT"+' '+finalTotal);
+        return finalTotal;
+    }
+    private static String chineseToDigits(String chineseDigitsMixString){
+        return chineseToDigits(chineseDigitsMixString,true);
+    }
+
+    private static String chineseToDigitsHighTolerance(String chineseDigitsMixString, boolean percentConvert, boolean skipError, List<String> errorChar, List<String> errorMsg) {
+        System.out.println("chineseToDigitsHighTolerance_IN " + chineseDigitsMixString + " " + percentConvert + " " + skipError + " " + errorChar + " " + errorChar + " " + errorMsg);
+        String total = "";
+        if (skipError) {
+            try {
+                total = chineseToDigits(chineseDigitsMixString, percentConvert);
+            } catch (Exception e) {
+                total = "";
+                errorChar.add(chineseDigitsMixString);
+                errorMsg.add(e.getMessage());
+            }
+        } else {
+            total = chineseToDigits(chineseDigitsMixString, percentConvert);
+        }
+        System.out.println("chineseToDigitsHighTolerance_OUT " + total);
+        return total;
+    }
+    private static String chineseToDigitsHighTolerance(String chineseDigitsMixString){
+        return chineseToDigitsHighTolerance(chineseDigitsMixString,true,false,new ArrayList<>(),new ArrayList<>());
+    }
+
+    public static boolean checkChineseNumberReasonable(String chNumber) {
+        if (chNumber.length() > 0) {
+            for (String i : CHINESE_PURE_NUMBER_LIST) {
+                if (chNumber.contains(i)) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
+    
 
 
 
@@ -203,7 +328,7 @@ private static String [] CHINESE_PURE_COUNTING_UNIT_LIST = new String[]  {"十",
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(coreCHToDigits("六十五"));
+        System.out.printf(chineseToDigitsHighTolerance("百分之负六十五点二八"));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
