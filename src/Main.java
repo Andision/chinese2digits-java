@@ -386,7 +386,7 @@ public class Main {
         return traditionalTextConvertFunc(chString,true);
     }
 
-    public static String standardChNumberConvert(String chNumberString) {
+    private static String standardChNumberConvert(String chNumberString) {
         List<String> chNumberStringList = new ArrayList<String>();
         for (char c : chNumberString.toCharArray()) {
             chNumberStringList.add(String.valueOf(c));
@@ -453,7 +453,7 @@ public class Main {
         return ret;
     }
 
-    public static List<String> checkNumberSeg(List<String> chineseNumberList, String originText) {
+    private static List<String> checkNumberSeg(List<String> chineseNumberList, String originText) {
         List<String> newChineseNumberList = new ArrayList<>();
         String tempPreText = "";
         String tempMixedString = "";
@@ -498,7 +498,7 @@ public class Main {
         return newChineseNumberList;
     }
 
-    public static List<String> checkSignSeg(List<String> chineseNumberList) {
+    private static List<String> checkSignSeg(List<String> chineseNumberList) {
         List<String> newChineseNumberList = new ArrayList<>();
         String tempSign = "";
         for(int i = 0; i < chineseNumberList.size(); i++) {
@@ -516,6 +516,30 @@ public class Main {
     }
 
 
+    private static List<String> digitsToCHChars(List<String> mixedStringList) {
+        List<String> resultList = new ArrayList<String>();
+        for (String mixedString : mixedStringList) {
+            if (mixedString.startsWith(".")) {
+                mixedString = "0" + mixedString;
+            }
+            for (String key : digits_char_ch_dict.keySet()) {
+                if (mixedString.contains(key)) {
+                    mixedString = mixedString.replace(key, digits_char_ch_dict.get(key));
+
+                    for (String k : CHINESE_PER_COUNTING_STRING_LIST) {
+                        if (mixedString.contains(k)) {
+                            String temp = k + mixedString.replace(k, "");
+                            mixedString = temp;
+                        }
+                    }
+                }
+            }
+            resultList.add(mixedString);
+        }
+        return resultList;
+    }
+
+
 
 
 
@@ -523,7 +547,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(checkSignSeg(Arrays.asList("百分之四百三十二", "万分之四三", "千分之五"))));
+        System.out.printf(String.valueOf(digitsToCHChars(Arrays.asList("300十万", "20万", ".3%万", "300", "-.34%", "300万"))));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
