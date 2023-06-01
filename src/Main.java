@@ -133,6 +133,7 @@ public class Main {
         }
         return ret;
     }
+
     private static String coreCHToDigits(String chineseChars) {
         System.out.println("coreCHToDigits_IN"+' '+chineseChars);
         int total = 0;
@@ -452,6 +453,50 @@ public class Main {
         return ret;
     }
 
+    public static List<String> checkNumberSeg(List<String> chineseNumberList, String originText) {
+        List<String> newChineseNumberList = new ArrayList<>();
+        String tempPreText = "";
+        String tempMixedString = "";
+        int segLen = chineseNumberList.size();
+        if (segLen > 0) {
+            if (CHINESE_PER_COUNTING_SEG.contains(chineseNumberList.get(0).substring(0, Math.min(2,chineseNumberList.get(0).length())))) {
+                tempPreText = chineseNumberList.get(0);
+                newChineseNumberList.add(chineseNumberList.get(0).substring(2));
+            } else {
+                newChineseNumberList.add(chineseNumberList.get(0));
+            }
+            if (segLen > 1) {
+                for (int i = 1; i < segLen; i++) {
+                    if (CHINESE_PER_COUNTING_SEG.contains(chineseNumberList.get(i).substring(0, Math.min(2,chineseNumberList.get(i).length())))) {
+                        tempMixedString = chineseNumberList.get(i - 1) + chineseNumberList.get(i);
+                        if (originText.contains(tempMixedString)) {
+                            if (!tempPreText.isEmpty()) {
+                                if (CHINESE_PURE_COUNTING_UNIT_LIST.contains(String.valueOf(tempPreText.charAt(tempPreText.length() - 1)))) {
+                                    newChineseNumberList.set(newChineseNumberList.size() - 1, newChineseNumberList.get(newChineseNumberList.size() - 1).substring(0, newChineseNumberList.get(newChineseNumberList.size() - 1).length() - 1));
+                                    newChineseNumberList.add(String.valueOf(tempPreText.charAt(tempPreText.length() - 1)) + chineseNumberList.get(i));
+                                } else {
+                                    newChineseNumberList.add(chineseNumberList.get(i).substring(2));
+                                }
+                            } else {
+                                if (!newChineseNumberList.isEmpty()) {
+                                    newChineseNumberList.set(newChineseNumberList.size() - 1, tempMixedString);
+                                } else {
+                                    newChineseNumberList.add(tempMixedString);
+                                }
+                            }
+                        } else {
+                            newChineseNumberList.add(chineseNumberList.get(i).substring(2));
+                        }
+                        tempPreText = chineseNumberList.get(i);
+                    } else {
+                        newChineseNumberList.add(chineseNumberList.get(i));
+                        tempPreText = "";
+                    }
+                }
+            }
+        }
+        return newChineseNumberList;
+    }
 
 
 
@@ -462,7 +507,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(standardChNumberConvert("三点一千万")));
+        System.out.printf(String.valueOf(checkNumberSeg(Arrays.asList("百", "分之5", "负千", "分之15"),"百分之5负千分之15")));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
