@@ -303,7 +303,10 @@ public class Main {
             finalTotal = convertResultList.get(0);
         }
 
+        if(finalTotal.contains(".")){
         finalTotal = finalTotal.replaceAll("\\.?0*$", "");
+        }
+
         System.out.println("chineseToDigits_OUT" + ' ' + finalTotal);
         return finalTotal;
     }
@@ -649,7 +652,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(takeChineseNumberFromString("20万 111万")));
+        System.out.printf(String.valueOf(takeChineseNumberFromString("十二点零零零零零")));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
