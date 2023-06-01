@@ -6,7 +6,7 @@ import java.util.*;
 public class Main {
 
     private static String []CHINESE_CHAR_LIST = new String[]{"幺","零", "一", "二", "两", "三", "四", "五", "六", "七", "八", "九", "十", "百", "千", "万", "亿"};
-    private static String []CHINESE_SIGN_LIST = new String[]  {"负","正","-","+"};
+    private static List<String> CHINESE_SIGN_LIST = Arrays.asList("负","正","-","+");
     private static String [] CHINESE_CONNECTING_SIGN_LIST = new String[]  {".","点","·"};
     private static String [] CHINESE_PER_COUNTING_STRING_LIST = new String[]  {"百分之","千分之","万分之"};
     private static String CHINESE_PER_COUNTING_SEG = "分之";
@@ -498,6 +498,22 @@ public class Main {
         return newChineseNumberList;
     }
 
+    public static List<String> checkSignSeg(List<String> chineseNumberList) {
+        List<String> newChineseNumberList = new ArrayList<>();
+        String tempSign = "";
+        for(int i = 0; i < chineseNumberList.size(); i++) {
+            String newChNumberString = tempSign + chineseNumberList.get(i);
+            String lastString = newChNumberString.substring(newChNumberString.length() - 1);
+            if(CHINESE_SIGN_LIST.contains(lastString)) {
+                tempSign = lastString;
+                newChNumberString = newChNumberString.substring(0, newChNumberString.length() - 1);
+            } else {
+                tempSign = "";
+            }
+            newChineseNumberList.add(newChNumberString);
+        }
+        return newChineseNumberList;
+    }
 
 
 
@@ -507,7 +523,7 @@ public class Main {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(checkNumberSeg(Arrays.asList("百", "分之5", "负千", "分之15"),"百分之5负千分之15")));
+        System.out.printf(String.valueOf(checkSignSeg(Arrays.asList("百分之四百三十二", "万分之四三", "千分之五"))));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
