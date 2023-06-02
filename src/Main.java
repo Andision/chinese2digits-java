@@ -160,7 +160,7 @@ public class Main {
     }
 
     private static String coreCHToDigits(String chineseChars) {
-        System.out.println("coreCHToDigits_IN" + ' ' + chineseChars);
+//        System.out.println("coreCHToDigits_IN" + ' ' + chineseChars);
         int total = 0;
         String tempVal = "";
         int countingUnit = 1;
@@ -219,14 +219,14 @@ public class Main {
         } else {
             ret = String.valueOf(total);
         }
-        System.out.println("coreCHToDigits_OUT" + ' ' + ret);
+//        System.out.println("coreCHToDigits_OUT" + ' ' + ret);
         return ret;
 
     }
 
 
     private static String chineseToDigits(String chineseDigitsMixString, boolean percentConvert, Object... args) {
-        System.out.println("chineseToDigits_IN" + ' ' + chineseDigitsMixString + ' ' + percentConvert);
+//        System.out.println("chineseToDigits_IN" + ' ' + chineseDigitsMixString + ' ' + percentConvert);
         String[] chineseCharsListByDiv = chineseDigitsMixString.split("分之");
         List<String> convertResultList = new ArrayList<>();
         for (int k = 0; k < chineseCharsListByDiv.length; k++) {
@@ -307,7 +307,7 @@ public class Main {
         finalTotal = finalTotal.replaceAll("\\.?0*$", "");
         }
 
-        System.out.println("chineseToDigits_OUT" + ' ' + finalTotal);
+//        System.out.println("chineseToDigits_OUT" + ' ' + finalTotal);
         return finalTotal;
     }
 
@@ -316,7 +316,7 @@ public class Main {
     }
 
     private static String chineseToDigitsHighTolerance(String chineseDigitsMixString, boolean percentConvert, boolean skipError, List<String> errorChar, List<String> errorMsg) {
-        System.out.println("chineseToDigitsHighTolerance_IN " + chineseDigitsMixString + " " + percentConvert + " " + skipError + " " + errorChar + " " + errorChar + " " + errorMsg);
+//        System.out.println("chineseToDigitsHighTolerance_IN " + chineseDigitsMixString + " " + percentConvert + " " + skipError + " " + errorChar + " " + errorChar + " " + errorMsg);
         String total = "";
         if (skipError) {
             try {
@@ -329,7 +329,7 @@ public class Main {
         } else {
             total = chineseToDigits(chineseDigitsMixString, percentConvert);
         }
-        System.out.println("chineseToDigitsHighTolerance_OUT " + total);
+//        System.out.println("chineseToDigitsHighTolerance_OUT " + total);
         return total;
     }
 
@@ -647,12 +647,50 @@ public class Main {
         return takeChineseNumberFromString(chText,true,true,false,false);
     }
 
+    private static Map<String, Object> takeChineseNumberFromString(String chText, boolean percentConvert){
+        return takeChineseNumberFromString(chText,percentConvert,true,false,false);
+    }
+
 
     public static void main(String[] args) {
         // Press Ctrl+. with your caret at the highlighted text to see how
         // IntelliJ IDEA suggests fixing it.
 
-        System.out.printf(String.valueOf(takeChineseNumberFromString("十二点零零零零零")));
+        System.out.printf(String.valueOf(takeChineseNumberFromString("20万 111万")));
+        System.out.println(takeChineseNumberFromString("3.1千万"));
+
+        System.out.println(takeChineseNumberFromString("拾"));
+
+        System.out.println(takeChineseNumberFromString("12.55万"));
+        System.out.println(takeChineseNumberFromString("一兆韦德二〇二三哦哦一百03"));
+
+
+        System.out.println(takeChineseNumberFromString("三零万二零千拉阿拉啦啦30万20千嚯嚯或百四嚯嚯嚯四百三十二分之2345啦啦啦啦",false));
+        System.out.println(takeChineseNumberFromString("百分之5负千分之15"));
+        System.out.println(takeChineseNumberFromString("啊啦啦啦300十万你好我20万.3%万你好啊300咯咯咯-.34%啦啦啦300万"));
+        System.out.println(takeChineseNumberFromString("百分之四百三十二万分之四三千分之五今天天气不错三百四十点零零三四"));
+
+        System.out.println(takeChineseNumberFromString("234%lalalal-%nidaye+2.34%",true));
+        System.out.println(takeChineseNumberFromString("aaaa.3%万"));
+
+        System.out.println(takeChineseNumberFromString("十分之一"));
+        System.out.println(takeChineseNumberFromString("四分之三啦啦五百分之二",false));
+        System.out.println(takeChineseNumberFromString("4分之3负五分之6咿呀呀 四百分之16ooo千千万万"));
+        System.out.println(takeChineseNumberFromString("百分之五1234%"));
+        System.out.println(takeChineseNumberFromString("五百分之一",false));
+
+
+        System.out.println(takeChineseNumberFromString("百分之四百三十二万分之四三千分之五"));
+
+
+        System.out.println(takeChineseNumberFromString("四千三"));
+        System.out.println(takeChineseNumberFromString("伍亿柒仟万拾柒今天天气不错百分之三亿二百万五啦啦啦啦负百分之点二八你好啊三万二"));
+        System.out.println(takeChineseNumberFromString("llalala万三威风威风千四五"));
+        System.out.println(takeChineseNumberFromString("哥两好"));
+        System.out.println(takeChineseNumberFromString("伍亿柒仟万拾柒百分之"));
+        System.out.println(takeChineseNumberFromString("负百分之点二八你好啊百分之三五是不是点五零百分之负六十五点二八"));
+
+        System.out.println(takeChineseNumberFromString("50万"));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
