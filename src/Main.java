@@ -139,8 +139,8 @@ public class Main {
     private static String[] DIGITS_PER_COUNTING_STRING_LIST = new String[]{"%", "‰", "‱"};
 //    takingDigitsRERule = re.compile(r"(?:(?:\+|\-){0,1}\d+(?:\.\d+){0,1}(?:[\%\‰\‱]){0,1}|(?:\+|\-){0,1}\.\d+(?:[\%\‰\‱]){0,1})");
 
-    private static int max(List<Integer> list) {
-        int ret = list.get(0);
+    private static long max(List<Long> list) {
+        long ret = list.get(0);
         for (int i = 0; i < list.size(); i++) {
             if (ret < list.get(i)) {
                 ret = list.get(i);
@@ -161,19 +161,19 @@ public class Main {
 
     private static String coreCHToDigits(String chineseChars) {
 //        System.out.println("coreCHToDigits_IN" + ' ' + chineseChars);
-        int total = 0;
+        long total = 0;
         String tempVal = "";
-        int countingUnit = 1;
-        List<Integer> countingUnitFromString = new ArrayList<>();
-        countingUnitFromString.add(1);
+        long countingUnit = 1;
+        List<Long> countingUnitFromString = new ArrayList<>();
+        countingUnitFromString.add(1L);
 
         for (int i = chineseChars.length() - 1; i >= 0; i--) {
-            int val = common_used_ch_numerals.get(String.valueOf(chineseChars.charAt(i)));
+            long val = common_used_ch_numerals.get(String.valueOf(chineseChars.charAt(i)));
             if (val >= 10 && i == 0) {
                 if (val > countingUnit) {
                     countingUnit = val;
                     total += val;
-                    countingUnitFromString.add(Integer.valueOf(val));
+                    countingUnitFromString.add(Long.valueOf(val));
                 } else {
                     countingUnitFromString.add(val);
                     countingUnit = max(countingUnitFromString) * val;
@@ -690,7 +690,7 @@ public class Main {
         System.out.println(takeChineseNumberFromString("伍亿柒仟万拾柒百分之"));
         System.out.println(takeChineseNumberFromString("负百分之点二八你好啊百分之三五是不是点五零百分之负六十五点二八"));
 
-        System.out.println(takeChineseNumberFromString("50万"));
+        System.out.println(takeChineseNumberFromString("100亿"));
 
         // Press Ctrl+F5 or click the green arrow button in the gutter to run the code.
     }
